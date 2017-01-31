@@ -36,6 +36,7 @@ SWARM_REPO=${SWARM_REPO-https://github.com/docker/swarm.git}
 PARENT_BUILD_IMG=${PARENT_BUILD_IMG-}
 UPDATE_CERTS=${UPDATE_CERTS-}
 APK_MIRROR=${APK_MIRROR-}
+COMMIT=${COMMIT-}
 
 VERSION=$1
 
@@ -54,6 +55,10 @@ echo "Fetching and building swarm $VERSION..."
 TEMP=`mktemp -d`
 
 git clone -b $VERSION $SWARM_REPO $TEMP
+if [ ! -z "$COMMIT" ]; then
+    echo "Moving to commit $COMMIT"
+    pushd "$TEMP" && git checkout "$COMMIT" && popd
+fi
 if [ ! -z "$PARENT_BUILD_IMG" ]; then
     sed -i "s~FROM golang:1.7.1-alpine~FROM $PARENT_BUILD_IMG~" "$TEMP/Dockerfile"
 fi
