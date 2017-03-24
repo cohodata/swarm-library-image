@@ -57,7 +57,14 @@ TEMP=`mktemp -d`
 git clone -b $VERSION $SWARM_REPO $TEMP
 if [ ! -z "$COMMIT" ]; then
     echo "Moving to commit $COMMIT"
-    pushd "$TEMP" && git checkout "$COMMIT" && popd
+    pushd "$TEMP"
+    git checkout "$COMMIT"
+    checkoutec=$?
+    popd
+    if [ $checkoutec -ne 0 ]; then
+        echo "Failed to checkout $COMMIT"
+        exit 1
+    fi
 fi
 if [ ! -z "$PARENT_BUILD_IMG" ]; then
     sed -i "s~FROM golang:1.7.1-alpine~FROM $PARENT_BUILD_IMG~" "$TEMP/Dockerfile"
